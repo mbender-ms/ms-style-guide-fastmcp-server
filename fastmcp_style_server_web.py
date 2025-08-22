@@ -903,14 +903,18 @@ class WebEnabledStyleGuideAnalyzer:
 **Changes:**
 {chr(10).join(formatted_changes)}
 
-**Total updates:** {total_updates}"""
+**Total updates:** {total_updates}
+
+📋 **For Pull Request:**
+Copy the summary above to include in your pull request description. This provides reviewers with a clear audit trail of all Microsoft Style Guide improvements made during your session."""
         
         return {
             "summary": summary_text,
             "date": current_date,
             "total_updates": total_updates,
             "changes": self.change_history,
-            "formatted_summary": summary_text
+            "formatted_summary": summary_text,
+            "pr_instructions": "Copy the summary above to include in your pull request description."
         }
 
 # Initialize the web-enabled analyzer
