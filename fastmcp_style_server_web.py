@@ -899,11 +899,11 @@ class WebEnabledStyleGuideAnalyzer:
             formatted_changes = ["- No changes tracked in current session"]
         
         summary_text = f"""**Summary of Changes for Microsoft Style Guide**
-Date: {current_date}
-Changes:
+**Date:** {current_date}
+**Changes:**
 {chr(10).join(formatted_changes)}
 
-Total updates: {total_updates}"""
+**Total updates:** {total_updates}"""
         
         return {
             "summary": summary_text,
