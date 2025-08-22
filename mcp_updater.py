@@ -97,7 +97,7 @@ class MCPServerUpdater:
             return {}
     
     def _detect_current_version(self) -> str:
-        """Detect current version from git or default."""
+        """Detect current version from .mcp_version, CHANGELOG.md, git tags, or fallback."""
         try:
             # Try to read from version file first
             version_file = Path(".mcp_version")
@@ -108,7 +108,32 @@ class MCPServerUpdater:
                         return version
         except Exception:
             pass
-        
+
+        try:
+            # Try to read version from top of CHANGELOG.md (first non-empty line)
+            changelog_file = Path("CHANGELOG.md")
+            if changelog_file.exists():
+                with open(changelog_file, 'r', encoding='utf-8') as f:
+                    # Read a few lines to find the first meaningful line
+                    for _ in range(20):
+                        line = f.readline()
+                        if not line:
+                            break
+                        line = line.strip()
+                        if not line:
+                            continue
+                        # Accept patterns like "1.0", "v1.0", "Version: 1.0", "## [1.0] - YYYY-MM-DD"
+                        try:
+                            import re
+                            m = re.search(r'v?(\d+\.\d+(?:\.\d+)?)', line)
+                            if m:
+                                return m.group(1)
+                        except Exception:
+                            # If regex fails for any reason, continue to next line
+                            continue
+        except Exception:
+            pass
+
         try:
             # Try to get version from git tag
             result = subprocess.run(
@@ -121,7 +146,7 @@ class MCPServerUpdater:
                 return result.stdout.strip().lstrip("v")
         except Exception:
             pass
-        
+
         try:
             # Try to get current commit hash as fallback
             result = subprocess.run(
@@ -134,7 +159,7 @@ class MCPServerUpdater:
                 return f"git-{result.stdout.strip()}"
         except Exception:
             pass
-        
+
         # Default fallback
         return "1.0.0"
     

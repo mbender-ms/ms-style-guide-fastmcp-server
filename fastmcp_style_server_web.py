@@ -54,6 +54,9 @@ class WebEnabledStyleGuideAnalyzer:
         self.style_guide_base_url = "https://learn.microsoft.com/en-us/style-guide"
         self.session = None
         
+        # Change tracking for github_updates tool
+        self.change_history = []
+        
         # Core style guide URLs for live content
         self.core_urls = {
             "voice_tone": f"{self.style_guide_base_url}/brand-voice-above-all-simple-human",
@@ -863,6 +866,52 @@ class WebEnabledStyleGuideAnalyzer:
             return f"Use inclusive alternative for '{issue.get('text', '')}'"
         else:
             return "Follow Microsoft Style Guide recommendations"
+    
+    def track_change(self, file_path: str, line_number: int, change_description: str):
+        """Track a change made to a document for the github_updates summary."""
+        from datetime import datetime
+        
+        change_entry = {
+            "timestamp": datetime.now(),
+            "file_path": file_path,
+            "line_number": line_number,
+            "description": change_description
+        }
+        self.change_history.append(change_entry)
+    
+    def get_github_updates_summary(self) -> Dict[str, Any]:
+        """Generate a concise summary of all changes made by the MCP Server."""
+        from datetime import datetime
+        
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        total_updates = len(self.change_history)
+        
+        # Format changes for display
+        formatted_changes = []
+        for change in self.change_history:
+            change_text = f"- {change['description']}"
+            if change['line_number'] > 0:
+                change_text += f" (line {change['line_number']})"
+            formatted_changes.append(change_text)
+        
+        # If no changes tracked, provide a default message
+        if not formatted_changes:
+            formatted_changes = ["- No changes tracked in current session"]
+        
+        summary_text = f"""**Summary of Changes for Microsoft Style Guide**
+Date: {current_date}
+Changes:
+{chr(10).join(formatted_changes)}
+
+Total updates: {total_updates}"""
+        
+        return {
+            "summary": summary_text,
+            "date": current_date,
+            "total_updates": total_updates,
+            "changes": self.change_history,
+            "formatted_summary": summary_text
+        }
 
 # Initialize the web-enabled analyzer
 analyzer = WebEnabledStyleGuideAnalyzer()
@@ -880,6 +929,13 @@ if MCP_AVAILABLE:
                 return {"error": "No text provided for analysis"}
             
             result = await analyzer.analyze_content(text, analysis_type)
+            
+            # Track changes/issues found for github_updates summary
+            if result['issues']:
+                for issue in result['issues']:
+                    line_num = issue.get('position', 0) // 50 + 1  # Rough estimate of line number
+                    change_desc = f"Style issue identified: {issue['message']}"
+                    analyzer.track_change("content_analysis", line_num, change_desc)
             
             # Format for display with web enhancements
             summary = f"""📋 Microsoft Style Guide Analysis (Web-Enabled)
@@ -1342,6 +1398,12 @@ if not MCP_AVAILABLE:
         if not topic.strip():
             return {"error": "No topic provided"}
         return await analyzer.get_official_guidance(topic)
+    
+    @app.tool()
+    def github_updates() -> Dict[str, Any]:
+        """Generate a concise summary of all changes made by the MCP Server to articles.
+        Call this tool with '/github_updates' in the chat to get a summary of changes."""
+        return analyzer.get_github_updates_summary()
 
 async def main():
     """Run the MCP server."""

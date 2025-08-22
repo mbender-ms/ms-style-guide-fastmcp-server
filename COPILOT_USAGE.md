@@ -12,13 +12,13 @@
 ### Voice and Tone Check
 ```
 @workspace check voice and tone of this text:
-"Users can configure settings through the interface."
+"The configuration of settings can be accomplished by the user through the interface."
 ```
 
 ### Improvement Suggestions
 ```
 @workspace suggest improvements for this writing:
-"Users should use the functionality to optimize performance."
+"Users should utilize the functionality to facilitate optimal performance."
 ```
 
 ### Style Guidelines
@@ -62,9 +62,9 @@ python copilot_integration.py search "active voice"
 
 ## MCP Tools Available in VS Code
 
-Once the MCP server's running, these tools are available:
+Once the MCP server is running, these tools are available:
 - `analyze_content` - Comprehensive style analysis
 - `get_style_guidelines` - Retrieve specific guidelines
 - `suggest_improvements` - Get improvement suggestions
-- `search_style_guide` - Search official documentation (live)
+- `search_style_guide` - Search official documentation(live)
 - `get_official_guidance` - Get live official guidance (web version)

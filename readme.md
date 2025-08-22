@@ -393,6 +393,9 @@ for file in ["README.md", "docs/guide.md"]:
     python fastmcp_style_server.py --test
     # Add your analysis workflow here
 ```
+## 📝 Change Log
+
+For a detailed list of changes, please refer to the [CHANGELOG.md](CHANGELOG.md) file.
 
 ## 🤝 Contributing
 
